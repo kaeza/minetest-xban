@@ -99,7 +99,8 @@ local function ban_player(player, reason)
 end
 
 minetest.register_on_joinplayer(function(player)
-	local name = player:get_player_name() or "<wut>"
+	local name = player:get_player_name()
+	if (not name) or (name == "") then return end
 	local ip = minetest.get_player_ip(name)
 	if not iplist[name] then iplist[name] = { } end
 	if banned_ips[ip] then
