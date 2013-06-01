@@ -89,6 +89,9 @@ local function do_ban(player, reason)
 	minetest.chat_send_player(player, "Disconnection will follow shortly. Have a nice day :)")
 	minetest.ban_player(player)
 	iplist[player].banned = true
+	for _,ip in ipairs(iplist[player]) do
+		banned_ips[ip] = true
+	end
 end
 
 local function ban_player(player, reason)
