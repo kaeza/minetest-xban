@@ -8,24 +8,39 @@ if not unpack then unpack = table.unpack end
 
 local iplist
 local banned_ips
-
-local function log(message)
-	print("[xban] "..message)
-end
+local iplist_dirty
 
 local iplist_save_timer = 0
 
--- Forward
-local check_db -- = function(nosave)
+local function log(message)
+	minetest.log("info", "[xban] "..message)
+end
+
+local function check_db()
+	log("Performing consistency check...")
+	for player, list in pairs(iplist) do
+		local banned = list.banned
+		for _,ip in ipairs(list) do
+			if banned_ips[ip] and (not banned) then
+				log("Error: IP was banned but not user. Fixed.")
+				banned = true
+			elseif (not banned_ips[ip]) and banned then
+				log("Error: user was banned but not IP. Fixed.")
+				banned_ips[ip] = true
+			end
+		end
+		list.banned = banned
+	end
+end
 
 local function load_ips()
-	iplist = { }
-	banned_ips = { }
 	local f, e = io.open(iplist_file, "r")
 	if not f then
 		log("Error loading IP database: "..(e or ""))
 		return
 	end
+	iplist = { }
+	banned_ips = { }
 	for line in f:lines() do
 		local ipl = line:split("|")
 		local name = ipl[1]
@@ -45,9 +60,11 @@ local function load_ips()
 	iplist_save_timer = 0
 	log("IP database loaded!")
 	check_db()
+	iplist_dirty = false
 end
 
 local function save_ips()
+	if not iplist_dirty then return end
 	check_db()
 	local f, e = io.open(iplist_file, "w")
 	if not f then
@@ -65,23 +82,7 @@ local function save_ips()
 	f:close()
 	iplist_save_timer = 0
 	log("IP database saved!")
-end
-
-check_db = function(nosave)
-	log("Performing consistency check...")
-	for player, list in pairs(iplist) do
-		local banned = list.banned
-		for _,ip in ipairs(list) do
-			if banned_ips[ip] and (not banned) then
-				log("Error: IP was banned but not user. Fixed.")
-				banned = true
-			elseif (not banned_ips[ip]) and banned then
-				log("Error: user was banned but not IP. Fixed.")
-				banned_ips[ip] = true
-			end
-		end
-		list.banned = banned
-	end
+	iplist_dirty = false
 end
 
 local function do_ban(player, reason)
@@ -165,6 +166,7 @@ minetest.register_chatcommand("xban", {
 		log("Banned IPs: "..s)
 		minetest.set_player_privs(player, { })
 		log("Revoked all privileges")
+		iplist_dirty = true
 	end,
 })
 
