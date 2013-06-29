@@ -6,8 +6,8 @@ local iplist_file = minetest.get_worldpath().."/players.iplist"
 local unpack = unpack
 if not unpack then unpack = table.unpack end
 
-local iplist
-local banned_ips
+local iplist = { }
+local banned_ips = { }
 local iplist_dirty
 
 local iplist_save_timer = 0
@@ -180,4 +180,4 @@ minetest.register_chatcommand("xban_fix", {
 	end,
 })
 
-load_ips()
+minetest.after(1, load_ips)
