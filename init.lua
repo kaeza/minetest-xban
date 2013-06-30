@@ -1,7 +1,23 @@
 
-local SAVE_INTERVAL = 60 * 10
+-- START CONFIGURATION --
 
-local iplist_file = minetest.get_worldpath().."/players.iplist"
+-- Disable "guest" (automatically generated) accounts.
+-- This requests the player to use an actual account, then kicks
+-- the player.
+local KICK_GUESTS = minetest.setting_getbool("xban.kick_guests")
+
+-- Interval between database saves.
+local SAVE_INTERVAL = minetest.setting_get("xban.save_interval")
+
+-- Name of the IP list.
+local IPLIST_NAME = minetest.setting_get("xban.iplist_name")
+
+-- END CONFIGURATION --
+
+SAVE_INTERVAL = SAVE_INTERVAL and tonumber(SAVE_INTERVAL) or 3600
+
+IPLIST_NAME = IPLIST_NAME or ""
+local iplist_file = minetest.get_worldpath().."/"..((IPLIST_NAME ~= "") and IPLIST_NAME or "players.iplist")
 
 local unpack = unpack
 if not unpack then unpack = table.unpack end
@@ -103,6 +119,14 @@ minetest.register_on_joinplayer(function(player)
 	local name = player:get_player_name()
 	if (not name) or (name == "") then return end
 	local ip = minetest.get_player_ip(name)
+	if KICK_GUESTS and name:match("^Guest[0-9]*") then
+		minetest.after(1, function()
+			minetest.chat_send_player(name, "Guest accounts are disabled in this server.")
+			minetest.chat_send_player(name, "Please choose a proper username.")
+			minetest.ban_player(name)
+			minetest.after(1, minetest.unban_player_or_ip, name)
+		end)
+	end
 	if not iplist[name] then iplist[name] = { } end
 	if banned_ips[ip] then
 		ban_player(name)
