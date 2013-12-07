@@ -102,6 +102,7 @@ local function unban_player(name)
 		minetest.unban_player_or_ip(nm)
 	end
 	data.banned = nil
+	xban.save_db()
 	return true
 end
 
