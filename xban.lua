@@ -92,7 +92,7 @@ function xban.ban_player(name, time, reason)
 	return true
 end
 
-local function unban_player(name)
+function xban.unban_player(name)
 	local data = xban.find_entry(name)
 	if not data then return nil, "No such player." end
 	if data.privs and next(data.privs) then
