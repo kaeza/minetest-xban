@@ -17,8 +17,8 @@ minetest.register_chatcommand("xban", {
 			return
 		end
 		reason = reason:trim()
-		if reason == "" then reason = nil end
 		xban._.ACTION("%s bans player '%s'. Reason: %s", name, player_name, reason)
+		if reason == "" then reason = nil end
 		local r, e = xban.ban_player(player_name, nil, reason)
 		if r then
 			xban._.send(name, "Success!")
@@ -61,10 +61,10 @@ minetest.register_chatcommand("xtempban", {
 			return
 		end
 		reason = reason:trim()
-		if reason == "" then reason = nil end
 		xban._.ACTION("%s bans player '%s' for %d seconds. Reason: %s",
-			name, player, time, reason
+			name, player_name, time, reason
 		)
+		if reason == "" then reason = nil end
 		local r, e = xban.ban_player(player_name, time, reason)
 		if r then
 			xban._.send(name, "Success!")
