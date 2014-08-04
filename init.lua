@@ -8,6 +8,8 @@
 xban = { }
 xban._ = { } -- Internal functions.
 
+xban.player_notes = minetest.get_modpath("player_notes")
+
 local MP = minetest.get_modpath("xban")
 
 dofile(MP.."/conf.lua")
