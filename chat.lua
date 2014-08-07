@@ -12,7 +12,9 @@ minetest.register_chatcommand("xban", {
 	func = function(name, param)
 		param = param:trim()
 		local player_name, reason = param:match("([^ ]+)( *.*)")
-		if not player_name then
+		
+		
+		if not player_name or not reason then
 			xban._.send(name, "Usage: /xban <player> [<reason>]")
 			return
 		end
@@ -21,6 +23,10 @@ minetest.register_chatcommand("xban", {
 		if reason == "" then reason = nil end
 		local r, e = xban.ban_player(player_name, nil, reason)
 		if r then
+			if xban.player_notes then
+				player_notes.add_note(name, player_name, "banned because: "..reason)
+			end
+			
 			xban._.send(name, "Success!")
 		else
 			xban._.send(name, "Error: %s", e)
@@ -67,6 +73,9 @@ minetest.register_chatcommand("xtempban", {
 		if reason == "" then reason = nil end
 		local r, e = xban.ban_player(player_name, time, reason)
 		if r then
+			if xban.player_notes then
+				player_notes.add_note(name, player_name, "banned for "..time.." seconds because: "..reason)
+			end
 			xban._.send(name, "Success!")
 		else
 			xban._.send(name, "Error: %s", e)
