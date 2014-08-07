@@ -12,7 +12,9 @@ minetest.register_chatcommand("xban", {
 	func = function(name, param)
 		param = param:trim()
 		local player_name, reason = param:match("([^ ]+)( *.*)")
-		if not player_name then
+		
+		
+		if not player_name or not reason then
 			xban._.send(name, "Usage: /xban <player> [<reason>]")
 			return
 		end
